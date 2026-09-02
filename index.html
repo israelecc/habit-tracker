@@ -5,15 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Mi Tracker de Hábitos</title>
   
-  <!-- Enlace al Manifest de la PWA -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Ícono para la pantalla de inicio en iOS -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png.png?v=3" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png.png?v=3" />
   <link rel="icon" type="image/png" href="apple-touch-icon.png.png?v=3" />
   
-  <!-- Configuración nativa para iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Mis Hábitos" />
@@ -34,15 +30,28 @@
         </button>
       </header>
 
+      <!-- Barra de pestañas por días de la semana -->
+      <div class="week-tabs-container">
+        <div class="week-tabs" id="week-tabs">
+          <button class="week-tab-btn" data-day="Lun">Lun</button>
+          <button class="week-tab-btn" data-day="Mar">Mar</button>
+          <button class="week-tab-btn" data-day="Mié">Mié</button>
+          <button class="week-tab-btn" data-day="Jue">Jue</button>
+          <button class="week-tab-btn" data-day="Vie">Vie</button>
+          <button class="week-tab-btn" data-day="Sáb">Sáb</button>
+          <button class="week-tab-btn" data-day="Dom">Dom</button>
+        </div>
+      </div>
+
       <main class="main-content">
         <div id="empty-state" class="empty-state">
-          <div class="empty-icon">📝</div>
-          <h2>No tienes hábitos aún</h2>
-          <p>Presiona el botón de abajo para crear tu primer hábito</p>
+          <div class="empty-icon">🎉</div>
+          <h2>Sin hábitos programados</h2>
+          <p id="empty-state-text">No tienes hábitos agendados para este día.</p>
         </div>
 
         <div id="habits-list" class="habits-list hidden">
-          <!-- Los hábitos se mostrarán aquí -->
+          <!-- Los hábitos filtrados por día se mostrarán aquí -->
         </div>
       </main>
 
@@ -208,7 +217,6 @@
     </div>
   </div>
 
-  <!-- Librerías de Google y Firebase (módulos) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
   <script type="module" src="script.js"></script>
