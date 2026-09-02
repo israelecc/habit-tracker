@@ -29,6 +29,7 @@ const focusCheckbox = document.getElementById('habit-focus');
 const focusAppsContainer = document.getElementById('focus-apps-container');
 const habitsList = document.getElementById('habits-list');
 const emptyState = document.getElementById('empty-state');
+const emptyStateText = document.getElementById('empty-state-text');
 const detailTitle = document.getElementById('detail-title');
 const detailDays = document.getElementById('detail-days');
 const detailDuration = document.getElementById('detail-duration');
@@ -42,6 +43,7 @@ const finishFocusBtn = document.getElementById('finish-focus-btn');
 const calendarCheckbox = document.getElementById('habit-calendar');
 const deleteHabitBtn = document.getElementById('delete-habit-btn');
 const calendarConnectBtn = document.getElementById('calendar-connect-btn');
+const weekTabsContainer = document.getElementById('week-tabs');
 
 let googleAuthToken = localStorage.getItem('google_auth_token') || null;
 const GOOGLE_CLIENT_ID = '518511122002-qnq37t3ua9unsj37n5n97k486j4m5lje.apps.googleusercontent.com';
@@ -53,6 +55,7 @@ let currentHabitId = null;
 let focusTimer = null;
 let focusSeconds = 0;
 let focusTotalSeconds = 0;
+let activeDayTab = getTodayName(); // Selecciona hoy por defecto
 
 // ============================================
 // SINCRONIZACIÓN EN TIEMPO REAL (FIREBASE)
@@ -63,6 +66,7 @@ function listenToFirestore() {
     snapshot.forEach((doc) => {
       habits.push(doc.data());
     });
+    renderWeekTabs();
     renderHabits();
     if (currentHabitId) {
       renderDetail();
@@ -92,6 +96,7 @@ function showMainScreen() {
   formScreen.classList.add('hidden');
   detailScreen.classList.add('hidden');
   focusScreen.classList.add('hidden');
+  renderWeekTabs();
   renderHabits();
 }
 
@@ -160,6 +165,41 @@ function stopFocusTimer() {
     clearInterval(focusTimer);
     focusTimer = null;
   }
+}
+
+// MANEJO DE PESTAÑAS DE LA SEMANA
+if (weekTabsContainer) {
+  weekTabsContainer.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('.week-tab-btn');
+    if (!tabBtn) return;
+    
+    activeDayTab = tabBtn.dataset.day;
+    renderWeekTabs();
+    renderHabits();
+  });
+}
+
+function renderWeekTabs() {
+  const today = getTodayName();
+  const tabs = weekTabsContainer.querySelectorAll('.week-tab-btn');
+  
+  tabs.forEach(tab => {
+    const day = tab.dataset.day;
+    
+    // Marcar activo
+    if (day === activeDayTab) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+    
+    // Indicador del día actual
+    if (day === today) {
+      tab.classList.add('is-today-indicator');
+    } else {
+      tab.classList.remove('is-today-indicator');
+    }
+  });
 }
 
 // MANEJO DEL FORMULARIO
@@ -263,20 +303,29 @@ habitForm.addEventListener('submit', async (e) => {
   document.querySelectorAll('.app-option input:checked').forEach(app => app.checked = false);
 });
 
-// RENDERIZAR VISTAS
+// RENDERIZAR LISTA FILTRADA POR DÍA
 function renderHabits() {
   habitsList.innerHTML = '';
 
-  if (habits.length === 0) {
+  // Filtrar hábitos programados para la pestaña seleccionada
+  const filteredHabits = habits.filter(habit => habit.days && habit.days.includes(activeDayTab));
+
+  if (filteredHabits.length === 0) {
     emptyState.classList.remove('hidden');
     habitsList.classList.add('hidden');
+    const today = getTodayName();
+    if (activeDayTab === today) {
+      emptyStateText.textContent = "¡Día libre! No tienes hábitos agendados para hoy.";
+    } else {
+      emptyStateText.textContent = `No tienes hábitos agendados para el ${activeDayTab}.`;
+    }
     return;
   }
 
   emptyState.classList.add('hidden');
   habitsList.classList.remove('hidden');
 
-  habits.forEach(habit => {
+  filteredHabits.forEach(habit => {
     const habitCard = document.createElement('div');
     habitCard.className = 'habit-card';
     habitCard.style.cursor = 'pointer';
@@ -284,7 +333,7 @@ function renderHabits() {
     const daysText = habit.days ? habit.days.join(', ') : '';
     const completionsThisWeek = getCompletionsThisWeek(habit);
     const today = getTodayName();
-    const isToday = habit.days && habit.days.includes(today);
+    const isTodayTab = activeDayTab === today;
     
     habitCard.innerHTML = `
       <div class="habit-card-header">
@@ -292,9 +341,9 @@ function renderHabits() {
         <span class="habit-duration">${habit.duration} min</span>
       </div>
       <p class="habit-days">📅 ${daysText} (${habit.type || 'recurrente'})</p>
-      <p class="habit-completions">✅ ${completionsThisWeek} veces esta semana</p>
+      <p class="habit-completions">✅ ${completionsThisWeek} veces completado esta semana</p>
       ${habit.needFocus ? '<p class="habit-focus">🎯 Modo concentración</p>' : ''}
-      ${isToday ? '<p class="habit-today">✨ Hoy toca</p>' : ''}
+      ${isTodayTab ? '<p class="habit-today">✨ Programado para hoy</p>' : ''}
     `;
     
     habitCard.addEventListener('click', () => showDetailScreen(habit.id));
