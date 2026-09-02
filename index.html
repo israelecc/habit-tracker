@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Tracker de Hábitos</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Configuración para iOS / iPhone -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Mis Hábitos" />
+</head>
+<body>
+  <div id="app">
+    <!-- Pantalla principal (lista de hábitos) -->
+    <div id="main-screen">
+      <header class="header">
+        <h1>Mis Hábitos</h1>
+        <p class="subtitle">Crea y sigue tus rutinas diarias</p>
+        <button id="calendar-connect-btn" class="calendar-connect-btn">
+          📅 Conectar Google Calendar
+        </button>
+      </header>
+
+      <main class="main-content">
+        <div id="empty-state" class="empty-state">
+          <div class="empty-icon">📝</div>
+          <h2>No tienes hábitos aún</h2>
+          <p>Presiona el botón de abajo para crear tu primer hábito</p>
+        </div>
+
+        <div id="habits-list" class="habits-list hidden">
+          <!-- Los hábitos se mostrarán aquí -->
+        </div>
+      </main>
+
+      <button id="add-habit-btn" class="add-btn">
+        + Agregar Hábito
+      </button>
+    </div>
+
+    <!-- Pantalla de formulario para agregar/editar hábito -->
+    <div id="form-screen" class="hidden">
+      <header class="header">
+        <button id="back-btn" class="back-btn">← Volver</button>
+        <h1>Nuevo Hábito</h1>
+        <div class="header-spacer"></div>
+      </header>
+
+      <main class="main-content">
+        <form id="habit-form">
+          <div class="form-group">
+            <label for="habit-name">Nombre del hábito *</label>
+            <input type="text" id="habit-name" placeholder="Ej: Estudiar inglés" required />
+          </div>
+
+          <div class="form-group">
+            <label for="habit-description">Descripción (opcional)</label>
+            <textarea id="habit-description" rows="3" placeholder="¿Qué quieres lograr con este hábito?"></textarea>
+          </div>
+
+          <!-- Tipo de hábito: Recurrente o Puntual -->
+          <div class="form-group">
+            <label for="habit-type">Frecuencia del hábito</label>
+            <select id="habit-type" class="form-select" style="width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; background-color: var(--bg-input);">
+              <option value="recurrente">🔄 Recurrente (se repite todas las semanas)</option>
+              <option value="puntual">📌 Puntual (una sola vez en la próxima fecha)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="habit-duration">Duración (minutos)</label>
+            <input type="number" id="habit-duration" min="5" max="480" value="30" />
+          </div>
+
+          <div class="form-group">
+            <label>Días de la semana *</label>
+            <div class="days-selector" id="days-selector">
+              <button type="button" class="day-btn" data-day="Lun">Lun</button>
+              <button type="button" class="day-btn" data-day="Mar">Mar</button>
+              <button type="button" class="day-btn" data-day="Mié">Mié</button>
+              <button type="button" class="day-btn" data-day="Jue">Jue</button>
+              <button type="button" class="day-btn" data-day="Vie">Vie</button>
+              <button type="button" class="day-btn" data-day="Sáb">Sáb</button>
+              <button type="button" class="day-btn" data-day="Dom">Dom</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="habit-focus" />
+              Activar modo concentración durante este hábito
+            </label>
+          </div>
+
+          <div id="focus-apps-container" class="form-group hidden">
+            <label>Aplicaciones permitidas durante la concentración</label>
+            <div class="apps-list">
+              <label class="app-option">
+                <input type="checkbox" value="Mensajes" />
+                Mensajes
+              </label>
+              <label class="app-option">
+                <input type="checkbox" value="Teléfono" />
+                Teléfono
+              </label>
+              <label class="app-option">
+                <input type="checkbox" value="Música" />
+                Música
+              </label>
+              <label class="app-option">
+                <input type="checkbox" value="Notas" />
+                Notas
+              </label>
+              <label class="app-option">
+                <input type="checkbox" value="Calendario" />
+                Calendario
+              </label>
+            </div>
+          </div>
+
+          <!-- Integración con Google Calendar -->
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="habit-calendar" />
+              Agregar a Google Calendar
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn">Guardar Hábito</button>
+        </form>
+      </main>
+    </div>
+
+    <!-- Pantalla de detalle del hábito -->
+    <div id="detail-screen" class="hidden">
+      <header class="header">
+        <button id="back-from-detail-btn" class="back-btn">← Volver</button>
+        <h1 id="detail-title">Detalle</h1>
+        <div class="header-spacer"></div>
+      </header>
+
+      <main class="main-content">
+        <div class="detail-info">
+          <div class="detail-row">
+            <span class="detail-label">📅 Días:</span>
+            <span id="detail-days"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">⏱️ Duración:</span>
+            <span id="detail-duration"></span>
+          </div>
+          <div id="detail-focus" class="detail-row hidden">
+            <span class="detail-label">🎯 Enfoque:</span>
+            <span id="detail-focus-text"></span>
+          </div>
+        </div>
+
+        <button id="complete-habit-btn" class="complete-btn">
+          ✅ Completar hábito
+        </button>
+
+        <button id="delete-habit-btn" class="delete-btn">
+          🗑️ Eliminar hábito
+        </button>
+
+        <div class="log-section">
+          <h3>📔 Diario de registro</h3>
+          <div id="log-entries" class="log-entries">
+            <!-- Los registros aparecerán aquí -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Pantalla de concentración -->
+    <div id="focus-screen" class="hidden">
+      <div class="focus-container">
+        <div class="focus-header">
+          <h2 id="focus-habit-name">Concentración</h2>
+          <p class="focus-subtitle">Mantén tu enfoque</p>
+        </div>
+        
+        <div class="focus-timer">
+          <div class="timer-circle" id="timer-circle">
+            <span id="timer-display">00:00</span>
+          </div>
+        </div>
+
+        <div class="focus-info">
+          <p id="focus-apps-info">🔒 Otras apps bloqueadas</p>
+        </div>
+
+        <button id="finish-focus-btn" class="finish-focus-btn">
+          Terminar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+  <script src="script.js"></script>
+</body>
+</html>

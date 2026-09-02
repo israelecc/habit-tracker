@@ -1,0 +1,791 @@
+/* ============================================
+   IMPORTAR FUENTE DE GOOGLE
+   ============================================ */
+   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+   /* ============================================
+      VARIABLES DE COLOR Y ESTILO
+      ============================================ */
+   :root {
+     --primary: #6C5CE7;
+     --primary-dark: #5B4CD6;
+     --primary-light: #A29BFE;
+     --success: #00B894;
+     --success-dark: #00A381;
+     --danger: #FF6B6B;
+     --warning: #FDCB6E;
+     --text-primary: #2D3436;
+     --text-secondary: #636E72;
+     --text-light: #B2BEC3;
+     --bg-main: #F8F9FA;
+     --bg-card: #FFFFFF;
+     --bg-input: #F1F3F5;
+     --border: #E9ECEF;
+     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+     --radius-sm: 10px;
+     --radius-md: 16px;
+     --radius-lg: 24px;
+     --radius-full: 50px;
+   }
+   
+   /* ============================================
+      ESTILOS GLOBALES
+      ============================================ */
+   * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+   }
+   
+   body {
+     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     color: var(--text-primary);
+     min-height: 100vh;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 20px;
+   }
+   
+   #app {
+     width: 100%;
+     max-width: 450px;
+     height: 90vh;
+     max-height: 900px;
+     background-color: var(--bg-main);
+     border-radius: var(--radius-lg);
+     display: flex;
+     flex-direction: column;
+     position: relative;
+     box-shadow: var(--shadow-lg);
+     overflow: hidden;
+   }
+   
+   /* ============================================
+      UTILIDADES
+      ============================================ */
+   .hidden {
+     display: none !important;
+   }
+   
+   /* ============================================
+      ENCABEZADO
+      ============================================ */
+   .header {
+     padding: 30px 24px 20px;
+     background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+     color: white;
+     text-align: center;
+     position: relative;
+     flex-shrink: 0;
+   }
+   
+   .header h1 {
+     font-size: 28px;
+     font-weight: 700;
+     margin-bottom: 8px;
+     letter-spacing: -0.5px;
+   }
+   
+   .subtitle {
+     color: rgba(255, 255, 255, 0.9);
+     font-size: 14px;
+     font-weight: 400;
+     letter-spacing: 0.3px;
+   }
+   
+   .back-btn {
+     position: absolute;
+     left: 20px;
+     top: 50%;
+     transform: translateY(-50%);
+     background: rgba(255, 255, 255, 0.2);
+     border: none;
+     color: white;
+     font-size: 14px;
+     font-weight: 500;
+     cursor: pointer;
+     padding: 10px 16px;
+     border-radius: var(--radius-full);
+     transition: all 0.3s;
+     backdrop-filter: blur(10px);
+   }
+   
+   .back-btn:hover {
+     background: rgba(255, 255, 255, 0.3);
+   }
+   
+   .header-spacer {
+     width: 80px;
+   }
+   
+   /* ============================================
+      CONTENIDO PRINCIPAL
+      ============================================ */
+   .main-content {
+     flex: 1;
+     padding: 24px 20px;
+     overflow-y: auto;
+     background-color: var(--bg-main);
+   }
+   
+   /* ============================================
+      ESTADO VACÍO
+      ============================================ */
+   .empty-state {
+     text-align: center;
+     padding: 60px 20px;
+     animation: fadeIn 0.5s ease;
+   }
+   
+   .empty-icon {
+     font-size: 72px;
+     margin-bottom: 24px;
+     animation: float 3s ease-in-out infinite;
+   }
+   
+   @keyframes float {
+     0%, 100% { transform: translateY(0px); }
+     50% { transform: translateY(-10px); }
+   }
+   
+   .empty-state h2 {
+     font-size: 24px;
+     font-weight: 600;
+     margin-bottom: 12px;
+     color: var(--text-primary);
+   }
+   
+   .empty-state p {
+     color: var(--text-secondary);
+     font-size: 15px;
+     line-height: 1.5;
+   }
+   
+   /* ============================================
+      LISTA DE HÁBITOS
+      ============================================ */
+   .habits-list {
+     display: flex;
+     flex-direction: column;
+     gap: 16px;
+   }
+   
+   .habit-card {
+     background: var(--bg-card);
+     border-radius: var(--radius-md);
+     padding: 20px;
+     cursor: pointer;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     box-shadow: var(--shadow-sm);
+     border: 1px solid var(--border);
+     position: relative;
+     overflow: hidden;
+   }
+   
+   .habit-card::before {
+     content: '';
+     position: absolute;
+     left: 0;
+     top: 0;
+     bottom: 0;
+     width: 4px;
+     background: var(--primary);
+     opacity: 0;
+     transition: opacity 0.3s;
+   }
+   
+   .habit-card:hover {
+     transform: translateY(-2px);
+     box-shadow: var(--shadow-md);
+   }
+   
+   .habit-card:hover::before {
+     opacity: 1;
+   }
+   
+   .habit-card-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     margin-bottom: 12px;
+   }
+   
+   .habit-card-header h3 {
+     font-size: 18px;
+     font-weight: 600;
+     color: var(--text-primary);
+     margin-bottom: 4px;
+   }
+   
+   .habit-duration {
+     background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+     color: white;
+     padding: 6px 12px;
+     border-radius: var(--radius-full);
+     font-size: 12px;
+     font-weight: 600;
+     white-space: nowrap;
+   }
+   
+   .habit-days {
+     font-size: 13px;
+     color: var(--text-secondary);
+     margin-bottom: 8px;
+     display: flex;
+     align-items: center;
+     gap: 6px;
+   }
+   
+   .habit-completions {
+     font-size: 13px;
+     color: var(--success);
+     font-weight: 500;
+     display: flex;
+     align-items: center;
+     gap: 6px;
+   }
+   
+   .habit-focus {
+     font-size: 12px;
+     color: var(--primary);
+     background: rgba(108, 92, 231, 0.1);
+     padding: 6px 10px;
+     border-radius: var(--radius-sm);
+     display: inline-block;
+     margin-top: 8px;
+   }
+   
+   .habit-desc {
+     font-size: 13px;
+     color: var(--text-secondary);
+     margin-top: 8px;
+     font-style: italic;
+     line-height: 1.4;
+   }
+   
+   /* ============================================
+      BOTÓN DE AGREGAR HÁBITO
+      ============================================ */
+   .add-btn {
+     background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+     color: white;
+     border: none;
+     border-radius: var(--radius-full);
+     padding: 18px 32px;
+     font-size: 16px;
+     font-weight: 600;
+     cursor: pointer;
+     margin: 20px;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     box-shadow: 0 4px 16px rgba(108, 92, 231, 0.3);
+     position: sticky;
+     bottom: 0;
+     letter-spacing: 0.5px;
+   }
+   
+   .add-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 8px 24px rgba(108, 92, 231, 0.4);
+   }
+   
+   .add-btn:active {
+     transform: translateY(0);
+     box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+   }
+   
+   /* ============================================
+      FORMULARIO
+      ============================================ */
+   .form-group {
+     margin-bottom: 24px;
+   }
+   
+   .form-group label {
+     display: block;
+     font-weight: 600;
+     margin-bottom: 10px;
+     font-size: 14px;
+     color: var(--text-primary);
+   }
+   
+   .form-group input[type="text"],
+   .form-group input[type="number"],
+   .form-group textarea {
+     width: 100%;
+     padding: 14px 16px;
+     border: 2px solid var(--border);
+     border-radius: var(--radius-sm);
+     font-size: 15px;
+     font-family: inherit;
+     background-color: var(--bg-input);
+     transition: all 0.3s;
+     color: var(--text-primary);
+   }
+   
+   .form-group input[type="text"]:focus,
+   .form-group input[type="number"]:focus,
+   .form-group textarea:focus {
+     outline: none;
+     border-color: var(--primary);
+     background-color: white;
+     box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+   }
+   
+   .form-group textarea {
+     resize: vertical;
+     min-height: 80px;
+   }
+   
+   .form-group input[type="checkbox"] {
+     margin-right: 10px;
+     width: 18px;
+     height: 18px;
+     accent-color: var(--primary);
+   }
+   
+   /* ============================================
+      SELECTOR DE DÍAS
+      ============================================ */
+   .days-selector {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 10px;
+   }
+   
+   .day-btn {
+     padding: 12px 16px;
+     border: 2px solid var(--border);
+     border-radius: var(--radius-full);
+     background-color: white;
+     cursor: pointer;
+     font-size: 14px;
+     font-weight: 500;
+     transition: all 0.3s;
+     color: var(--text-secondary);
+   }
+   
+   .day-btn:hover {
+     border-color: var(--primary-light);
+     color: var(--primary);
+   }
+   
+   .day-btn.selected {
+     background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+     color: white;
+     border-color: var(--primary);
+     box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+   }
+   
+   /* ============================================
+      LISTA DE APLICACIONES
+      ============================================ */
+   .apps-list {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 10px;
+   }
+   
+   .app-option {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     padding: 10px 14px;
+     border: 2px solid var(--border);
+     border-radius: var(--radius-full);
+     font-size: 14px;
+     cursor: pointer;
+     transition: all 0.3s;
+     background-color: white;
+   }
+   
+   .app-option:hover {
+     border-color: var(--primary-light);
+   }
+   
+   .app-option input {
+     margin: 0;
+     accent-color: var(--primary);
+   }
+   
+   /* ============================================
+      BOTÓN DE GUARDAR
+      ============================================ */
+   .submit-btn {
+     background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+     color: white;
+     border: none;
+     border-radius: var(--radius-full);
+     padding: 18px 32px;
+     font-size: 16px;
+     font-weight: 600;
+     cursor: pointer;
+     width: 100%;
+     margin-top: 10px;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     box-shadow: 0 4px 16px rgba(108, 92, 231, 0.3);
+     letter-spacing: 0.5px;
+   }
+   
+   .submit-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 8px 24px rgba(108, 92, 231, 0.4);
+   }
+   
+   .submit-btn:active {
+     transform: translateY(0);
+     box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+   }
+   
+   /* ============================================
+      PANTALLA DE DETALLE
+      ============================================ */
+   .detail-info {
+     background: var(--bg-card);
+     border-radius: var(--radius-md);
+     padding: 20px;
+     margin-bottom: 20px;
+     border: 1px solid var(--border);
+     box-shadow: var(--shadow-sm);
+   }
+   
+   .detail-row {
+     margin-bottom: 12px;
+     font-size: 15px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   
+   .detail-row:last-child {
+     margin-bottom: 0;
+   }
+   
+   .detail-label {
+     font-weight: 600;
+     color: var(--text-primary);
+     min-width: 100px;
+   }
+   
+   .complete-btn {
+     background: linear-gradient(135deg, #00B894 0%, #00CEC9 100%);
+     color: white;
+     border: none;
+     border-radius: var(--radius-full);
+     padding: 18px 32px;
+     font-size: 16px;
+     font-weight: 600;
+     cursor: pointer;
+     width: 100%;
+     margin-bottom: 12px;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     box-shadow: 0 4px 16px rgba(0, 184, 148, 0.3);
+     letter-spacing: 0.5px;
+   }
+   
+   .complete-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 8px 24px rgba(0, 184, 148, 0.4);
+   }
+   
+   .complete-btn:active {
+     transform: translateY(0);
+     box-shadow: 0 2px 8px rgba(0, 184, 148, 0.3);
+   }
+   
+   /* ============================================
+      BOTÓN DE ELIMINAR HÁBITO
+      ============================================ */
+   .delete-btn {
+     background: transparent;
+     color: var(--danger);
+     border: 2px solid var(--danger);
+     border-radius: var(--radius-full);
+     padding: 14px 24px;
+     font-size: 15px;
+     font-weight: 600;
+     cursor: pointer;
+     width: 100%;
+     margin-bottom: 24px;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   }
+   
+   .delete-btn:hover {
+     background: var(--danger);
+     color: white;
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+   }
+   
+   .delete-btn:active {
+     transform: translateY(0);
+   }
+   
+   /* ============================================
+      SECCIÓN DE DIARIO
+      ============================================ */
+   .log-section {
+     margin-top: 24px;
+   }
+   
+   .log-section h3 {
+     font-size: 20px;
+     font-weight: 600;
+     margin-bottom: 16px;
+     color: var(--text-primary);
+   }
+   
+   .log-entries {
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+   }
+   
+   .log-entry {
+     background: var(--bg-card);
+     border: 1px solid var(--border);
+     border-radius: var(--radius-sm);
+     padding: 16px;
+     box-shadow: var(--shadow-sm);
+     transition: all 0.3s;
+   }
+   
+   .log-entry:hover {
+     box-shadow: var(--shadow-md);
+   }
+   
+   .log-header {
+     display: flex;
+     justify-content: space-between;
+     margin-bottom: 8px;
+     padding-bottom: 8px;
+     border-bottom: 1px solid var(--border);
+   }
+   
+   .log-date {
+     font-weight: 600;
+     font-size: 13px;
+     color: var(--text-primary);
+   }
+   
+   .log-time {
+     color: var(--text-light);
+     font-size: 12px;
+   }
+   
+   .log-notes {
+     font-size: 14px;
+     color: var(--text-secondary);
+     line-height: 1.5;
+   }
+   
+   .no-logs {
+     text-align: center;
+     color: var(--text-light);
+     font-size: 14px;
+     padding: 30px 20px;
+     background: var(--bg-card);
+     border-radius: var(--radius-sm);
+     border: 1px dashed var(--border);
+   }
+   
+   /* ============================================
+      ANIMACIONES
+      ============================================ */
+   @keyframes fadeIn {
+     from {
+       opacity: 0;
+       transform: translateY(10px);
+     }
+     to {
+       opacity: 1;
+       transform: translateY(0);
+     }
+   }
+   
+   @keyframes slideIn {
+     from {
+       opacity: 0;
+       transform: translateX(20px);
+     }
+     to {
+       opacity: 1;
+       transform: translateX(0);
+     }
+   }
+   
+   /* ============================================
+      SCROLLBAR PERSONALIZADO
+      ============================================ */
+   .main-content::-webkit-scrollbar {
+     width: 6px;
+   }
+   
+   .main-content::-webkit-scrollbar-track {
+     background: transparent;
+   }
+   
+   .main-content::-webkit-scrollbar-thumb {
+     background: var(--border);
+     border-radius: 3px;
+   }
+   
+   .main-content::-webkit-scrollbar-thumb:hover {
+     background: var(--text-light);
+   }
+   
+   /* ============================================
+      PANTALLA DE CONCENTRACIÓN
+      ============================================ */
+   .focus-container {
+     height: 100%;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     padding: 40px 20px;
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     color: white;
+   }
+   
+   .focus-header {
+     text-align: center;
+     margin-bottom: 40px;
+   }
+   
+   .focus-header h2 {
+     font-size: 28px;
+     font-weight: 700;
+     margin-bottom: 8px;
+     letter-spacing: -0.5px;
+   }
+   
+   .focus-subtitle {
+     font-size: 16px;
+     opacity: 0.9;
+   }
+   
+   .focus-timer {
+     margin-bottom: 40px;
+   }
+   
+   .timer-circle {
+     width: 250px;
+     height: 250px;
+     border-radius: 50%;
+     background: rgba(255, 255, 255, 0.15);
+     backdrop-filter: blur(10px);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border: 4px solid rgba(255, 255, 255, 0.3);
+     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+     animation: pulse 2s ease-in-out infinite;
+   }
+   
+   @keyframes pulse {
+     0%, 100% { transform: scale(1); }
+     50% { transform: scale(1.05); }
+   }
+   
+   #timer-display {
+     font-size: 56px;
+     font-weight: 700;
+     letter-spacing: 2px;
+     font-variant-numeric: tabular-nums;
+   }
+   
+   .focus-info {
+     text-align: center;
+     margin-bottom: 40px;
+     padding: 20px;
+     background: rgba(255, 255, 255, 0.1);
+     border-radius: 16px;
+     backdrop-filter: blur(10px);
+   }
+   
+   .focus-info p {
+     font-size: 14px;
+     opacity: 0.9;
+   }
+   
+   .finish-focus-btn {
+     background: rgba(255, 255, 255, 0.2);
+     color: white;
+     border: 2px solid rgba(255, 255, 255, 0.5);
+     border-radius: 50px;
+     padding: 16px 32px;
+     font-size: 16px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: all 0.3s;
+     backdrop-filter: blur(10px);
+   }
+   
+   .finish-focus-btn:hover {
+     background: rgba(255, 255, 255, 0.3);
+     transform: translateY(-2px);
+   }
+   
+   .finish-focus-btn:active {
+     transform: translateY(0);
+   }
+   
+   /* ============================================
+      INDICADOR DE HOY
+      ============================================ */
+   .habit-today {
+     font-size: 12px;
+     color: var(--warning);
+     font-weight: 600;
+     background: rgba(253, 203, 110, 0.1);
+     padding: 6px 10px;
+     border-radius: 10px;
+     display: inline-block;
+     margin-top: 8px;
+   }
+   
+   /* ============================================
+      DURACIÓN EN REGISTROS
+      ============================================ */
+   .log-duration {
+     font-size: 13px;
+     color: var(--primary);
+     font-weight: 500;
+     margin-bottom: 5px;
+   }
+   
+   /* ============================================
+      BOTÓN CONECTAR GOOGLE CALENDAR
+      ============================================ */
+   .calendar-connect-btn {
+     background: white;
+     color: var(--text-primary);
+     border: 2px solid var(--border);
+     border-radius: var(--radius-full);
+     padding: 14px 24px;
+     font-size: 15px;
+     font-weight: 600;
+     cursor: pointer;
+     margin: 10px 20px 0;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+     box-shadow: var(--shadow-sm);
+   }
+   
+   .calendar-connect-btn:hover {
+     border-color: var(--primary);
+     color: var(--primary);
+     transform: translateY(-2px);
+     box-shadow: var(--shadow-md);
+   }
+   
+   .calendar-connect-btn:active {
+     transform: translateY(0);
+   }
