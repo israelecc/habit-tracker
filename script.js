@@ -27,7 +27,8 @@ const finishFocusBtn = document.getElementById('finish-focus-btn');
 const calendarCheckbox = document.getElementById('habit-calendar');
 const deleteHabitBtn = document.getElementById('delete-habit-btn');
 const calendarConnectBtn = document.getElementById('calendar-connect-btn');
-let googleAuthToken = null;
+
+let googleAuthToken = localStorage.getItem('google_auth_token') || null;
 let googleApiLoaded = false;
 const GOOGLE_CLIENT_ID = '518511122002-qnq37t3ua9unsj37n5n97k486j4m5lje.apps.googleusercontent.com';
 
@@ -177,7 +178,7 @@ if (calendarConnectBtn) {
   calendarConnectBtn.addEventListener('click', signInWithGoogle);
 }
 
-// Evento de Eliminar Hábito (con borrado en Google Calendar)
+// Evento de Eliminar Hábito
 if (deleteHabitBtn) {
   deleteHabitBtn.addEventListener('click', () => {
     const habit = habits.find(h => h.id === currentHabitId);
@@ -185,8 +186,7 @@ if (deleteHabitBtn) {
 
     const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar el hábito "${habit.name}"?`);
     if (confirmDelete) {
-      // Si el hábito tiene un evento asociado en Google Calendar, lo eliminamos
-      if (habit.googleEventId && googleAuthToken) {
+      if (habit.googleEventId) {
         deleteGoogleCalendarEvent(habit.googleEventId);
       }
 
@@ -432,11 +432,15 @@ function getTodayName() {
 }
 
 // ============================================
-// INTEGRACIÓN CON GOOGLE CALENDAR
+// INTEGRACIÓN CON GOOGLE CALENDAR (PERSISTENTE)
 // ============================================
 let tokenClient;
 
 function initGoogleApi() {
+  if (googleAuthToken) {
+    updateConnectButtonState(true);
+  }
+
   if (window.google && window.google.accounts) {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
@@ -449,6 +453,7 @@ function initGoogleApi() {
         }
         
         googleAuthToken = response.access_token;
+        localStorage.setItem('google_auth_token', googleAuthToken);
         updateConnectButtonState(true);
         alert('✅ Conexión establecida con tu cuenta de Google.');
       },
@@ -486,12 +491,20 @@ function signInWithGoogle() {
 
 function createGoogleCalendarEvent(habit) {
   if (!googleAuthToken) {
+    googleAuthToken = localStorage.getItem('google_auth_token');
+  }
+
+  if (!googleAuthToken) {
     alert('⚠️ No hay sesión activa. Haz clic primero en "📅 Conectar Google Calendar".');
     saveHabits();
     showMainScreen();
     return;
   }
 
+  executeCalendarInsert(habit);
+}
+
+function executeCalendarInsert(habit) {
   const today = new Date();
   const daysMap = {
     'Dom': 0, 'Lun': 1, 'Mar': 2, 'Mié': 3, 'Jue': 4, 'Vie': 5, 'Sáb': 6
@@ -545,16 +558,21 @@ function createGoogleCalendarEvent(habit) {
   .then(async (res) => {
     const result = await res.json();
     if (res.ok) {
-      // Guardamos el ID del evento devuelto por Google en el hábito
       habit.googleEventId = result.id;
       saveHabits();
       showMainScreen();
       alert(`✅ ¡Confirmado! Evento "${habit.name}" creado en tu Google Calendar.`);
     } else {
-      console.error('Error devuelto por la API de Google:', result);
+      if (res.status === 401) {
+        localStorage.removeItem('google_auth_token');
+        googleAuthToken = null;
+        updateConnectButtonState(false);
+        alert('⚠️ La sesión de Google expiró. Vuelve a hacer clic en "Conectar Google Calendar".');
+      } else {
+        alert(`❌ Error de Google Calendar (${result.error.code}): ${result.error.message}`);
+      }
       saveHabits();
       showMainScreen();
-      alert(`❌ Error de Google Calendar (${result.error.code}): ${result.error.message}`);
     }
   })
   .catch(err => {
@@ -565,8 +583,13 @@ function createGoogleCalendarEvent(habit) {
   });
 }
 
-// Función para eliminar el evento en Google Calendar
 function deleteGoogleCalendarEvent(eventId) {
+  if (!googleAuthToken) {
+    googleAuthToken = localStorage.getItem('google_auth_token');
+  }
+
+  if (!googleAuthToken) return;
+
   fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
     method: 'DELETE',
     headers: {
@@ -576,8 +599,6 @@ function deleteGoogleCalendarEvent(eventId) {
   .then(res => {
     if (res.ok || res.status === 204) {
       console.log('Evento eliminado correctamente de Google Calendar.');
-    } else {
-      console.error('No se pudo eliminar el evento de Google Calendar.');
     }
   })
   .catch(err => {
