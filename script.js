@@ -15,7 +15,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const habitsCollection = collection(db, "habits");
 
-// REFERENCIAS DOM
+// DOM
 const mainScreen = document.getElementById('main-screen');
 const formScreen = document.getElementById('form-screen');
 const detailScreen = document.getElementById('detail-screen');
@@ -48,14 +48,13 @@ const weekTabsContainer = document.getElementById('week-tabs');
 let googleAuthToken = localStorage.getItem('google_auth_token') || null;
 const GOOGLE_CLIENT_ID = '518511122002-qnq37t3ua9unsj37n5n97k486j4m5lje.apps.googleusercontent.com';
 
-// AUXILIAR DÍA ACTUAL
 function getTodayName() {
   const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const today = new Date();
   return days[today.getDay()];
 }
 
-// ESTADO DE LA APP
+// ESTADO
 let habits = [];
 let selectedDays = [];
 let currentHabitId = null;
@@ -64,7 +63,7 @@ let focusSeconds = 0;
 let focusTotalSeconds = 0;
 let activeDayTab = getTodayName();
 
-// SINCRONIZACIÓN EN TIEMPO REAL (FIREBASE)
+// FIREBASE
 function listenToFirestore() {
   onSnapshot(habitsCollection, (snapshot) => {
     habits = [];
@@ -138,7 +137,7 @@ function showFocusScreen(habit) {
   startFocusTimer(habit.duration * 60);
 }
 
-// TEMPORIZADOR DE CONCENTRACIÓN
+// TEMPORIZADOR
 function startFocusTimer(durationSeconds) {
   focusSeconds = durationSeconds;
   focusTotalSeconds = durationSeconds;
@@ -172,7 +171,7 @@ function stopFocusTimer() {
   }
 }
 
-// CAMBIO DE PESTAÑAS (DÍAS DE LA SEMANA)
+// PESTAÑAS DÍAS
 if (weekTabsContainer) {
   weekTabsContainer.addEventListener('click', (e) => {
     const tabBtn = e.target.closest('.week-tab-btn');
@@ -205,7 +204,7 @@ function renderWeekTabs() {
   });
 }
 
-// MANEJO FORMULARIO
+// FORMULARIO
 daysSelector.addEventListener('click', (e) => {
   const dayBtn = e.target.closest('.day-btn');
   if (!dayBtn) return;
@@ -305,7 +304,7 @@ habitForm.addEventListener('submit', async (e) => {
   document.querySelectorAll('.app-option input:checked').forEach(app => app.checked = false);
 });
 
-// RENDERIZAR VISTAS
+// RENDERIZAR
 function renderHabits() {
   habitsList.innerHTML = '';
 
@@ -409,7 +408,6 @@ function renderLogs(habit) {
   });
 }
 
-// COMPLETAR HÁBITO
 completeHabitBtn.addEventListener('click', () => {
   const habit = habits.find(h => h.id === currentHabitId);
   if (!habit) return;
@@ -464,7 +462,6 @@ finishFocusBtn.addEventListener('click', () => {
   completeHabitWithNotes(notes, habit);
 });
 
-// AUXILIARES
 function getCompletionsThisWeek(habit) {
   if (!habit.logs || habit.logs.length === 0) return 0;
 
@@ -476,7 +473,7 @@ function getCompletionsThisWeek(habit) {
   return habit.logs.filter(log => new Date(log.date) >= weekStart).length;
 }
 
-// INTEGRACIÓN GOOGLE CALENDAR
+// GOOGLE CALENDAR
 let tokenClient;
 
 function initGoogleApi() {
@@ -649,6 +646,6 @@ function deleteGoogleCalendarEvent(eventId) {
   });
 }
 
-// INICIALIZACIÓN
+// INICIO
 listenToFirestore();
 initGoogleApi();
