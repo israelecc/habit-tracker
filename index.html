@@ -8,12 +8,12 @@
   <!-- Enlace al Manifest de la PWA -->
   <link rel="manifest" href="manifest.json" />
 
-  <!-- Ícono para la pantalla de inicio en iOS apuntando a la doble extensión -->
+  <!-- Ícono para la pantalla de inicio en iOS -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png.png?v=3" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png.png?v=3" />
   <link rel="icon" type="image/png" href="apple-touch-icon.png.png?v=3" />
   
-  <!-- Configuración nativa para iOS (iPhone) -->
+  <!-- Configuración nativa para iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Mis Hábitos" />
@@ -208,8 +208,9 @@
     </div>
   </div>
 
+  <!-- Librerías de Google y Firebase (módulos) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
