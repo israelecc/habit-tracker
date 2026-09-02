@@ -14,10 +14,12 @@
 </head>
 <body>
   <div id="app">
-    <!-- Pantalla principal (lista de hábitos) -->
+    <!-- Pantalla principal -->
     <div id="main-screen">
       <header class="header">
+        <div class="header-spacer"></div>
         <h1>Mis Hábitos</h1>
+        <div class="header-spacer"></div>
         <p class="subtitle">Crea y sigue tus rutinas diarias</p>
         <button id="calendar-connect-btn" class="calendar-connect-btn">
           📅 Conectar Google Calendar
@@ -41,7 +43,7 @@
       </button>
     </div>
 
-    <!-- Pantalla de formulario para agregar/editar hábito -->
+    <!-- Formulario para agregar/editar hábito -->
     <div id="form-screen" class="hidden">
       <header class="header">
         <button id="back-btn" class="back-btn">← Volver</button>
@@ -61,7 +63,6 @@
             <textarea id="habit-description" rows="3" placeholder="¿Qué quieres lograr con este hábito?"></textarea>
           </div>
 
-          <!-- Tipo de hábito: Recurrente o Puntual -->
           <div class="form-group">
             <label for="habit-type">Frecuencia del hábito</label>
             <select id="habit-type" class="form-select" style="width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; background-color: var(--bg-input);">
@@ -121,7 +122,6 @@
             </div>
           </div>
 
-          <!-- Integración con Google Calendar -->
           <div class="form-group">
             <label>
               <input type="checkbox" id="habit-calendar" />
