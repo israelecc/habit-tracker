@@ -54,7 +54,7 @@ body {
   overflow-y: auto;
 }
 
-/* ENCABEZADO */
+/* ENCABEZADOS */
 .header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   color: white;
@@ -106,7 +106,7 @@ body {
   width: 40px;
 }
 
-/* BARRA DE DÍAS (PESTAÑAS ESTILIZADAS) */
+/* PESTAÑAS DE DÍAS */
 .week-tabs-container {
   background-color: var(--bg-main);
   padding: 12px 16px;
@@ -148,7 +148,7 @@ body {
   border-bottom: 3px solid #fdcb6e;
 }
 
-/* CONTENIDO Y TARJETAS */
+/* CONTENIDO PRINCIPAL */
 .main-content {
   flex: 1;
   padding: 20px 20px 100px;
@@ -160,7 +160,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60vh;
+  height: 50vh;
   text-align: center;
   color: var(--text-secondary);
 }
