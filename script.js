@@ -48,6 +48,13 @@ const weekTabsContainer = document.getElementById('week-tabs');
 let googleAuthToken = localStorage.getItem('google_auth_token') || null;
 const GOOGLE_CLIENT_ID = '518511122002-qnq37t3ua9unsj37n5n97k486j4m5lje.apps.googleusercontent.com';
 
+// AUXILIAR DÍA ACTUAL
+function getTodayName() {
+  const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  const today = new Date();
+  return days[today.getDay()];
+}
+
 // ESTADO DE LA APP
 let habits = [];
 let selectedDays = [];
@@ -55,11 +62,9 @@ let currentHabitId = null;
 let focusTimer = null;
 let focusSeconds = 0;
 let focusTotalSeconds = 0;
-let activeDayTab = getTodayName(); // Selecciona hoy por defecto
+let activeDayTab = getTodayName();
 
-// ============================================
 // SINCRONIZACIÓN EN TIEMPO REAL (FIREBASE)
-// ============================================
 function listenToFirestore() {
   onSnapshot(habitsCollection, (snapshot) => {
     habits = [];
@@ -90,7 +95,7 @@ async function deleteHabitFromFirestore(habitId) {
   }
 }
 
-// NAVEGACIÓN ENTRE PANTALLAS
+// NAVEGACIÓN
 function showMainScreen() {
   mainScreen.classList.remove('hidden');
   formScreen.classList.add('hidden');
@@ -167,7 +172,7 @@ function stopFocusTimer() {
   }
 }
 
-// MANEJO DE PESTAÑAS DE LA SEMANA
+// CAMBIO DE PESTAÑAS (DÍAS DE LA SEMANA)
 if (weekTabsContainer) {
   weekTabsContainer.addEventListener('click', (e) => {
     const tabBtn = e.target.closest('.week-tab-btn');
@@ -186,14 +191,12 @@ function renderWeekTabs() {
   tabs.forEach(tab => {
     const day = tab.dataset.day;
     
-    // Marcar activo
     if (day === activeDayTab) {
       tab.classList.add('active');
     } else {
       tab.classList.remove('active');
     }
     
-    // Indicador del día actual
     if (day === today) {
       tab.classList.add('is-today-indicator');
     } else {
@@ -202,7 +205,7 @@ function renderWeekTabs() {
   });
 }
 
-// MANEJO DEL FORMULARIO
+// MANEJO FORMULARIO
 daysSelector.addEventListener('click', (e) => {
   const dayBtn = e.target.closest('.day-btn');
   if (!dayBtn) return;
@@ -292,7 +295,6 @@ habitForm.addEventListener('submit', async (e) => {
     showMainScreen();
   }
 
-  // Limpiar formulario
   document.getElementById('habit-name').value = '';
   document.getElementById('habit-description').value = '';
   document.getElementById('habit-duration').value = '30';
@@ -303,11 +305,10 @@ habitForm.addEventListener('submit', async (e) => {
   document.querySelectorAll('.app-option input:checked').forEach(app => app.checked = false);
 });
 
-// RENDERIZAR LISTA FILTRADA POR DÍA
+// RENDERIZAR VISTAS
 function renderHabits() {
   habitsList.innerHTML = '';
 
-  // Filtrar hábitos programados para la pestaña seleccionada
   const filteredHabits = habits.filter(habit => habit.days && habit.days.includes(activeDayTab));
 
   if (filteredHabits.length === 0) {
@@ -475,13 +476,7 @@ function getCompletionsThisWeek(habit) {
   return habit.logs.filter(log => new Date(log.date) >= weekStart).length;
 }
 
-function getTodayName() {
-  const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-  const today = new Date();
-  return days[today.getDay()];
-}
-
-// INTEGRACIÓN CON GOOGLE CALENDAR
+// INTEGRACIÓN GOOGLE CALENDAR
 let tokenClient;
 
 function initGoogleApi() {
