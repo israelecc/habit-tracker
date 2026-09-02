@@ -2,6 +2,7 @@
   --primary: #6c5ce7;
   --primary-light: #a29bfe;
   --bg-main: #ffffff;
+  --bg-app: #f1f2f6;
   --bg-input: #f8f9fa;
   --text-primary: #2d3436;
   --text-secondary: #636e72;
@@ -20,27 +21,41 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-main);
+  background-color: var(--bg-app);
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  min-height: -webkit-fill-available;
   margin: 0;
   padding: 0;
 }
 
+/* EN COMPUTADORA: Limita el ancho a tamaño móvil y centra la app */
 #app {
-  width: 100vw;
+  width: 100%;
+  max-width: 480px;
   height: 100vh;
   height: -webkit-fill-available;
+  max-height: 900px;
   background-color: var(--bg-main);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-lg);
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* EN IPHONE / MÓVIL: Ocupa toda la pantalla nativa */
+@media (max-width: 480px) {
+  #app {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 
 .hidden {
@@ -89,6 +104,7 @@ body {
   cursor: pointer;
   grid-column: 1 / -1;
   justify-self: center;
+  transition: all 0.2s ease;
 }
 
 .back-btn {
@@ -106,7 +122,7 @@ body {
   width: 40px;
 }
 
-/* PESTAÑAS DE DÍAS */
+/* BARRA DE PESTAÑAS DÍAS DE LA SEMANA */
 .week-tabs-container {
   background-color: var(--bg-main);
   padding: 12px 16px;
@@ -117,9 +133,8 @@ body {
 
 .week-tabs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  max-width: 500px;
   justify-content: space-between;
 }
 
@@ -130,7 +145,7 @@ body {
   border: 1px solid var(--border);
   background-color: var(--bg-input);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
@@ -148,7 +163,7 @@ body {
   border-bottom: 3px solid #fdcb6e;
 }
 
-/* CONTENIDO PRINCIPAL */
+/* CONTENIDO Y TARJETAS */
 .main-content {
   flex: 1;
   padding: 20px 20px 100px;
@@ -180,6 +195,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   width: 100%;
+  transition: background-color 0.2s ease;
 }
 
 .add-btn {
@@ -215,6 +231,12 @@ body {
   border-radius: var(--radius-sm);
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.habit-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .habit-card-header {
