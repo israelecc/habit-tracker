@@ -1,0 +1,21 @@
+{
+  "short_name": "Mis Hábitos",
+  "name": "Tracker de Hábitos",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/habit-tracker/",
+  "background_color": "#6c5ce7",
+  "theme_color": "#6c5ce7",
+  "display": "standalone"
+}
