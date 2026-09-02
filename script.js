@@ -1,6 +1,21 @@
-// ============================================
-// REFERENCIAS A ELEMENTOS HTML
-// ============================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBgnTqtyjaz_oiBfa5JnxxzhBA5U1azoMU",
+  authDomain: "tracker-1abcd.firebaseapp.com",
+  projectId: "tracker-1abcd",
+  storageBucket: "tracker-1abcd.firebasestorage.app",
+  messagingSenderId: "646698426313",
+  appId: "1:646698426313:web:c34924b5da6576c1111218"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const habitsCollection = collection(db, "habits");
+
+// REFERENCIAS DOM
 const mainScreen = document.getElementById('main-screen');
 const formScreen = document.getElementById('form-screen');
 const detailScreen = document.getElementById('detail-screen');
@@ -29,12 +44,9 @@ const deleteHabitBtn = document.getElementById('delete-habit-btn');
 const calendarConnectBtn = document.getElementById('calendar-connect-btn');
 
 let googleAuthToken = localStorage.getItem('google_auth_token') || null;
-let googleApiLoaded = false;
 const GOOGLE_CLIENT_ID = '518511122002-qnq37t3ua9unsj37n5n97k486j4m5lje.apps.googleusercontent.com';
 
-// ============================================
 // ESTADO DE LA APP
-// ============================================
 let habits = [];
 let selectedDays = [];
 let currentHabitId = null;
@@ -43,27 +55,38 @@ let focusSeconds = 0;
 let focusTotalSeconds = 0;
 
 // ============================================
-// FUNCIONES DE ALMACENAMIENTO
+// SINCRONIZACIÓN EN TIEMPO REAL (FIREBASE)
 // ============================================
-function saveHabits() {
-  localStorage.setItem('habits', JSON.stringify(habits));
+function listenToFirestore() {
+  onSnapshot(habitsCollection, (snapshot) => {
+    habits = [];
+    snapshot.forEach((doc) => {
+      habits.push(doc.data());
+    });
+    renderHabits();
+    if (currentHabitId) {
+      renderDetail();
+    }
+  });
 }
 
-function loadHabits() {
-  const saved = localStorage.getItem('habits');
-  if (saved) {
-    habits = JSON.parse(saved);
-    habits.forEach(habit => {
-      if (!habit.logs) {
-        habit.logs = [];
-      }
-    });
+async function saveHabitToFirestore(habit) {
+  try {
+    await setDoc(doc(db, "habits", String(habit.id)), habit);
+  } catch (e) {
+    console.error("Error al guardar en Firebase: ", e);
   }
 }
 
-// ============================================
+async function deleteHabitFromFirestore(habitId) {
+  try {
+    await deleteDoc(doc(db, "habits", String(habitId)));
+  } catch (e) {
+    console.error("Error al eliminar en Firebase: ", e);
+  }
+}
+
 // NAVEGACIÓN ENTRE PANTALLAS
-// ============================================
 function showMainScreen() {
   mainScreen.classList.remove('hidden');
   formScreen.classList.add('hidden');
@@ -105,22 +128,17 @@ function showFocusScreen(habit) {
   startFocusTimer(habit.duration * 60);
 }
 
-// ============================================
 // TEMPORIZADOR DE CONCENTRACIÓN
-// ============================================
 function startFocusTimer(durationSeconds) {
   focusSeconds = durationSeconds;
   focusTotalSeconds = durationSeconds;
   
-  if (focusTimer) {
-    clearInterval(focusTimer);
-  }
+  if (focusTimer) clearInterval(focusTimer);
   
   updateTimerDisplay();
   
   focusTimer = setInterval(() => {
     focusSeconds--;
-    
     if (focusSeconds <= 0) {
       clearInterval(focusTimer);
       focusTimer = null;
@@ -144,15 +162,12 @@ function stopFocusTimer() {
   }
 }
 
-// ============================================
-// MANEJO DEL FORMULARIO DE HÁBITOS
-// ============================================
+// MANEJO DEL FORMULARIO
 daysSelector.addEventListener('click', (e) => {
   const dayBtn = e.target.closest('.day-btn');
   if (!dayBtn) return;
 
   const day = dayBtn.dataset.day;
-
   if (selectedDays.includes(day)) {
     selectedDays = selectedDays.filter(d => d !== day);
     dayBtn.classList.remove('selected');
@@ -178,9 +193,8 @@ if (calendarConnectBtn) {
   calendarConnectBtn.addEventListener('click', signInWithGoogle);
 }
 
-// Evento de Eliminar Hábito
 if (deleteHabitBtn) {
-  deleteHabitBtn.addEventListener('click', () => {
+  deleteHabitBtn.addEventListener('click', async () => {
     const habit = habits.find(h => h.id === currentHabitId);
     if (!habit) return;
 
@@ -190,14 +204,14 @@ if (deleteHabitBtn) {
         deleteGoogleCalendarEvent(habit.googleEventId);
       }
 
-      habits = habits.filter(h => h.id !== currentHabitId);
-      saveHabits();
+      await deleteHabitFromFirestore(currentHabitId);
+      currentHabitId = null;
       showMainScreen();
     }
   });
 }
 
-habitForm.addEventListener('submit', (e) => {
+habitForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const name = document.getElementById('habit-name').value;
@@ -231,12 +245,10 @@ habitForm.addEventListener('submit', (e) => {
     googleEventId: null
   };
 
-  habits.push(habit);
-  
   if (calendarCheckbox.checked) {
     createGoogleCalendarEvent(habit);
   } else {
-    saveHabits();
+    await saveHabitToFirestore(habit);
     showMainScreen();
   }
 
@@ -251,9 +263,7 @@ habitForm.addEventListener('submit', (e) => {
   document.querySelectorAll('.app-option input:checked').forEach(app => app.checked = false);
 });
 
-// ============================================
-// RENDERIZAR LISTA DE HÁBITOS
-// ============================================
+// RENDERIZAR VISTAS
 function renderHabits() {
   habitsList.innerHTML = '';
 
@@ -271,10 +281,10 @@ function renderHabits() {
     habitCard.className = 'habit-card';
     habitCard.style.cursor = 'pointer';
     
-    const daysText = habit.days.join(', ');
+    const daysText = habit.days ? habit.days.join(', ') : '';
     const completionsThisWeek = getCompletionsThisWeek(habit);
     const today = getTodayName();
-    const isToday = habit.days.includes(today);
+    const isToday = habit.days && habit.days.includes(today);
     
     habitCard.innerHTML = `
       <div class="habit-card-header">
@@ -292,19 +302,16 @@ function renderHabits() {
   });
 }
 
-// ============================================
-// RENDERIZAR DETALLE DEL HÁBITO
-// ============================================
 function renderDetail() {
   const habit = habits.find(h => h.id === currentHabitId);
   if (!habit) return;
 
   detailTitle.textContent = habit.name;
-  detailDays.textContent = `${habit.days.join(', ')} (${habit.type || 'recurrente'})`;
+  detailDays.textContent = `${habit.days ? habit.days.join(', ') : ''} (${habit.type || 'recurrente'})`;
   detailDuration.textContent = `${habit.duration} minutos`;
   
   if (habit.needFocus) {
-    detailFocusText.textContent = `${habit.allowedApps.join(', ') || 'Ninguna'}`;
+    detailFocusText.textContent = `${habit.allowedApps ? habit.allowedApps.join(', ') : 'Ninguna'}`;
     detailFocusText.parentElement.classList.remove('hidden');
   } else {
     detailFocusText.parentElement.classList.add('hidden');
@@ -313,9 +320,6 @@ function renderDetail() {
   renderLogs(habit);
 }
 
-// ============================================
-// RENDERIZAR REGISTROS (DIARIO)
-// ============================================
 function renderLogs(habit) {
   logEntriesContainer.innerHTML = '';
 
@@ -355,9 +359,7 @@ function renderLogs(habit) {
   });
 }
 
-// ============================================
 // COMPLETAR HÁBITO
-// ============================================
 completeHabitBtn.addEventListener('click', () => {
   const habit = habits.find(h => h.id === currentHabitId);
   if (!habit) return;
@@ -374,7 +376,7 @@ function showNotesModal(habit) {
   completeHabitWithNotes(notes, habit);
 }
 
-function completeHabitWithNotes(notes, habit) {
+async function completeHabitWithNotes(notes, habit) {
   if (!habit) {
     habit = habits.find(h => h.id === currentHabitId);
   }
@@ -392,15 +394,16 @@ function completeHabitWithNotes(notes, habit) {
     duration: actualDuration
   };
 
+  if (!habit.logs) habit.logs = [];
   habit.logs.push(logEntry);
-  saveHabits();
+  
+  await saveHabitToFirestore(habit);
   
   stopFocusTimer();
   focusSeconds = 0;
   focusTotalSeconds = 0;
   
   showDetailScreen(habit.id);
-  renderDetail();
 }
 
 finishFocusBtn.addEventListener('click', () => {
@@ -411,9 +414,7 @@ finishFocusBtn.addEventListener('click', () => {
   completeHabitWithNotes(notes, habit);
 });
 
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
+// AUXILIARES
 function getCompletionsThisWeek(habit) {
   if (!habit.logs || habit.logs.length === 0) return 0;
 
@@ -431,9 +432,7 @@ function getTodayName() {
   return days[today.getDay()];
 }
 
-// ============================================
-// INTEGRACIÓN CON GOOGLE CALENDAR (PERSISTENTE)
-// ============================================
+// INTEGRACIÓN CON GOOGLE CALENDAR
 let tokenClient;
 
 function initGoogleApi() {
@@ -496,7 +495,7 @@ function createGoogleCalendarEvent(habit) {
 
   if (!googleAuthToken) {
     alert('⚠️ No hay sesión activa. Haz clic primero en "📅 Conectar Google Calendar".');
-    saveHabits();
+    saveHabitToFirestore(habit);
     showMainScreen();
     return;
   }
@@ -559,7 +558,7 @@ function executeCalendarInsert(habit) {
     const result = await res.json();
     if (res.ok) {
       habit.googleEventId = result.id;
-      saveHabits();
+      await saveHabitToFirestore(habit);
       showMainScreen();
       alert(`✅ ¡Confirmado! Evento "${habit.name}" creado en tu Google Calendar.`);
     } else {
@@ -571,13 +570,13 @@ function executeCalendarInsert(habit) {
       } else {
         alert(`❌ Error de Google Calendar (${result.error.code}): ${result.error.message}`);
       }
-      saveHabits();
+      await saveHabitToFirestore(habit);
       showMainScreen();
     }
   })
-  .catch(err => {
+  .catch(async (err) => {
     console.error('Error de red:', err);
-    saveHabits();
+    await saveHabitToFirestore(habit);
     showMainScreen();
     alert('❌ Error de conexión al enviar el evento.');
   });
@@ -606,16 +605,6 @@ function deleteGoogleCalendarEvent(eventId) {
   });
 }
 
-// ============================================
-// NOTIFICACIONES E INICIALIZACIÓN
-// ============================================
-function requestNotificationPermission() {
-  if ('Notification' in window) {
-    Notification.requestPermission();
-  }
-}
-
-loadHabits();
-renderHabits();
+// INICIALIZACIÓN
+listenToFirestore();
 initGoogleApi();
-requestNotificationPermission();
